@@ -1,0 +1,35 @@
+# Blueprint de Render: crea la base de datos PostgreSQL y el servicio web.
+# En Render: New + > Blueprint > elige este repositorio.
+
+databases:
+  - name: erp-famoc-db
+    plan: free
+    databaseName: erp_famoc
+    user: erp_famoc
+
+services:
+  - type: web
+    name: erp-famoc
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    envVars:
+      # Render conecta la base de datos y genera la clave secreta automáticamente.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: erp-famoc-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_HTTPS
+        value: "1"
+      - key: LOAD_SAMPLE_DATA
+        value: "1"
+      - key: ADMIN_USERNAME
+        value: admin
+      # Render te la pedirá al crear el Blueprint (no queda escrita en el repositorio).
+      - key: ADMIN_PASSWORD
+        sync: false
